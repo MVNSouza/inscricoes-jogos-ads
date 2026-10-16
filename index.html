@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Inscrições — II Jogos Internos ADS</title>
+<style>
+:root{--bg:#f4f6fb;--surface:#fff;--text:#172033;--muted:#657089;--line:#e3e8f2;--primary:#2457d6;--primary-light:#eaf0ff;--green:#16856b;--orange:#c46a18;--shadow:0 8px 28px rgba(22,34,66,.07)}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:linear-gradient(120deg,#142b58,#2457d6);color:#fff;padding:34px 20px 62px}
+.hero,.container{max-width:1180px;margin:0 auto} .eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;opacity:.8}
+h1{font-size:clamp(1.7rem,4vw,2.6rem);margin:10px 0 8px;line-height:1.12} .subtitle{margin:0;color:#dce6ff;max-width:650px;line-height:1.6}
+.container{padding:0 20px 42px;margin-top:-34px} .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.stat,.panel,.modality-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.stat{padding:19px 21px} .stat-label{font-size:.85rem;color:var(--muted);font-weight:600} .stat-value{font-size:2rem;font-weight:850;letter-spacing:-.04em;margin-top:4px} .stat small{color:var(--muted)}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.search-wrap{position:relative;flex:1;min-width:230px} .search-wrap span{position:absolute;left:14px;top:11px;color:var(--muted)}
+input[type=search]{width:100%;border:1px solid #d7deeb;background:#fff;padding:12px 14px 12px 40px;border-radius:11px;font:inherit;outline:none}
+input[type=search]:focus{border-color:var(--primary);box-shadow:0 0 0 3px #2457d61c}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:11px 14px;font-weight:700}
+button:hover{border-color:var(--primary);color:var(--primary)} .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border-radius:999px;padding:10px 15px} .tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:22px 0 14px} h2{font-size:1.35rem;margin:0} .section-desc{color:var(--muted);font-size:.9rem;margin-top:5px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.modality-card{overflow:hidden;display:flex;flex-direction:column;min-width:0} .card-top{padding:17px 18px 13px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.card-title{font-size:1.02rem;font-weight:800;line-height:1.35} .count{background:var(--primary-light);color:var(--primary);border-radius:10px;padding:6px 9px;white-space:nowrap;font-size:.8rem;font-weight:800}
+.people{padding:9px 18px 16px;display:flex;flex-direction:column} .person{padding:9px 0;border-bottom:1px solid #eef1f7;display:flex;align-items:center;gap:10px;font-size:.92rem;line-height:1.4} .person:last-child{border-bottom:0}
+.avatar{width:30px;height:30px;border-radius:9px;background:#edf1f9;color:#405477;display:grid;place-items:center;font-size:.72rem;font-weight:850;flex-shrink:0}
+.empty{background:#fff;border:1px dashed #cbd4e5;border-radius:14px;padding:32px;text-align:center;color:var(--muted);grid-column:1/-1}
+.no-results{display:none;text-align:center;padding:32px;color:var(--muted)} footer{padding:20px 0 4px;color:var(--muted);font-size:.82rem;text-align:center}
+@media(max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.grid{grid-template-columns:1fr}header{padding-top:28px}.section-head{align-items:flex-start;flex-direction:column}}
+@media print{body{background:#fff}header{background:#fff;color:#172033;padding:10px 0 24px}.subtitle{color:#555}.container{margin-top:0;padding:0}.toolbar,.tabs,footer button{display:none!important}.stat,.panel,.modality-card{box-shadow:none;break-inside:avoid}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="hero">
+<div class="eyebrow">Painel de acompanhamento</div>
+<h1>II Jogos Internos · ADS</h1>
+<p class="subtitle">Visualização das inscrições por modalidade, com a relação de participantes e o total de inscritos em cada atividade.</p>
+</div></header>
+<main class="container">
+<section class="stats" aria-label="Resumo das inscrições">
+<div class="stat"><div class="stat-label">Formulários recebidos</div><div class="stat-value" id="totalPessoas">—</div><small>respostas no CSV</small></div>
+<div class="stat"><div class="stat-label">Modalidades selecionadas</div><div class="stat-value" id="totalModalidades">—</div><small>modalidades com inscrições</small></div>
+<div class="stat"><div class="stat-label">Seleções registradas</div><div class="stat-value" id="totalSelecoes">—</div><small>uma pessoa pode escolher várias</small></div>
+</section>
+<div class="toolbar">
+<div class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Buscar modalidade ou nome..." aria-label="Buscar modalidade ou participante"></div>
+<button id="expandAll" type="button">Expandir listas</button><button id="print" type="button">Imprimir / salvar PDF</button>
+</div>
+<nav class="tabs" aria-label="Categorias">
+<button class="tab active" data-category="todas">Todas as categorias</button>
+<button class="tab" data-category="individuais">Individuais e duplas</button>
+<button class="tab" data-category="coletivas">Coletivas</button>
+<button class="tab" data-category="culturais">Culturais</button>
+</nav>
+<div class="section-head"><div><h2 id="sectionTitle">Todas as modalidades</h2><div class="section-desc" id="sectionDesc">Selecione uma categoria ou pesquise para encontrar participantes.</div></div><div id="shownCount" class="section-desc"></div></div>
+<section class="grid" id="cards" aria-live="polite"></section>
+<div class="no-results" id="noResults">Nenhuma modalidade ou participante encontrado com essa busca.</div>
+<footer>Dados organizados a partir do CSV de inscrições. Os totais contam cada participante uma vez por modalidade.</footer>
+</main>
+<script>
+const registros = [{"nome": "Luis Gustavo Gomes do Nascimento Sousa", "individuais": "DAMAS, XADREZ", "coletivas": "BASQUETE 3x3", "culturais": ""}, {"nome": "Francisco Vinícius Sales de Sousa", "individuais": "BALADEIRA, DOMINÓ, DAMAS, XADREZ", "coletivas": "", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Edilson Gonçalves Alves", "individuais": "NATAÇÃO", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, FUT7", "culturais": ""}, {"nome": "Daniel Henrique Loiola Moreira", "individuais": "", "coletivas": "VÔLEI, HANDEBOL", "culturais": ""}, {"nome": "João Pedro Lima Freitas", "individuais": "DOMINÓ, XADREZ", "coletivas": "BASQUETE 3x3", "culturais": ""}, {"nome": "Francisco Vinícius Sales de Sousa", "individuais": "BALADEIRA, DOMINÓ, DAMAS, XADREZ, TENIS DE MESA", "coletivas": "", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "João Marcos Laurindo de Souza", "individuais": "BALADEIRA, SINUCA/BILHAR, BARALHO, DAMAS", "coletivas": "VÔLEI", "culturais": "MÚSICA"}, {"nome": "José Leandro Andrade Loiola", "individuais": "XADREZ", "coletivas": "", "culturais": ""}, {"nome": "Guilherme Alves dos Santos", "individuais": "CORRIDA DE VELOCIDADE", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, FUT7", "culturais": "EMBAIXADINHA"}, {"nome": "Cauã Lima Andrade", "individuais": "DOMINÓ, DAMAS, POKER", "coletivas": "", "culturais": ""}, {"nome": "João Pedro Neres Arraes Ramos", "individuais": "POKER", "coletivas": "BASQUETE 3x3", "culturais": ""}, {"nome": "Paulo Victor Pinheiro de Oliveira", "individuais": "DOMINÓ, XADREZ, POKER", "coletivas": "VÔLEI, FUTSAL, FUT7, ROUBA BANDEIRA, E-SPORTS", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Ian Martins Alves", "individuais": "POKER", "coletivas": "FUTSAL, HANDEBOL, FUT7, E-SPORTS", "culturais": ""}, {"nome": "José Felipe Moreira Silva", "individuais": "XADREZ, POKER", "coletivas": "E-SPORTS", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "José Felipe Moreira Silva", "individuais": "XADREZ, POKER, E-SPORTS (TEKKEN)", "coletivas": "", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "José Leandro Andrade Loiola", "individuais": "XADREZ, E-SPORTS (TEKKEN)", "coletivas": "", "culturais": ""}, {"nome": "Paulo Victor Pinheiro de Oliveira", "individuais": "DOMINÓ, XADREZ, POKER, TENIS DE MESA, E-SPORTS (TEKKEN), E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, FUTSAL, FUT7, E-SPORTS (VALORANT)", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Samuel Moreira da Silva", "individuais": "", "coletivas": "VÔLEI, VOLEI DE PRAIA", "culturais": ""}, {"nome": "Cauã Lima Andrade", "individuais": "DOMINÓ, DAMAS, POKER, E-SPORTS (TEKKEN)", "coletivas": "", "culturais": ""}, {"nome": "Luis Henrique Loiola Caracas", "individuais": "", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, HANDEBOL", "culturais": ""}, {"nome": "Francisco Vinícius Sales de Sousa", "individuais": "BALADEIRA, DOMINÓ, DAMAS, XADREZ, TENIS DE MESA, E-SPORTS (TEKKEN), E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Igor Araújo Carlos", "individuais": "E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "", "culturais": ""}, {"nome": "Rykelme Marques Andú", "individuais": "DOMINÓ, POKER, E-SPORTS (TEKKEN)", "coletivas": "", "culturais": ""}, {"nome": "Luis Gustavo Gomes do Nascimento Sousa", "individuais": "DOMINÓ, DAMAS, XADREZ", "coletivas": "HANDEBOL, BASQUETE 3x3", "culturais": ""}, {"nome": "Matheus da Silva Brito", "individuais": "", "coletivas": "FUTSAL, FUT7", "culturais": ""}, {"nome": "Jhonnathan Scarcela de Oliveira", "individuais": "DOMINÓ, BARALHO, XADREZ", "coletivas": "", "culturais": ""}, {"nome": "Marcos Vinicius Bastos Venâncio", "individuais": "NATAÇÃO, TENIS DE MESA", "coletivas": "VÔLEI, FUTSAL", "culturais": ""}, {"nome": "Ronald Almeida Do Nas", "individuais": "BARALHO, XADREZ", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, HANDEBOL", "culturais": ""}, {"nome": "Ian Martins Alves", "individuais": "BARALHO, POKER, E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, FUTSAL, HANDEBOL, BASQUETE 3x3, FUT7, E-SPORTS (VALORANT)", "culturais": ""}, {"nome": "João Paulo Soares Belizário", "individuais": "E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "", "culturais": ""}, {"nome": "Isaías Ferreira de Medeiros", "individuais": "TENIS DE MESA", "coletivas": "FUTSAL", "culturais": ""}, {"nome": "Gersson Eronir Alves Caracas Júnior", "individuais": "CORRIDA DE VELOCIDADE, TENIS DE MESA", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, FUT7", "culturais": "EMBAIXADINHA"}, {"nome": "Gabriel Ribeiro Fernandes", "individuais": "BARALHO, POKER, E-SPORTS (TEKKEN)", "coletivas": "", "culturais": "CONCURSO DE DESENHO, CULINÁRIA"}, {"nome": "Adrien Bezerra Leandro", "individuais": "XADREZ, POKER", "coletivas": "", "culturais": ""}, {"nome": "Paulo Victor Pinheiro de Oliveira", "individuais": "DOMINÓ, XADREZ, POKER, TENIS DE MESA, E-SPORTS (TEKKEN), E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, HANDEBOL, FUT7, ROUBA BANDEIRA, E-SPORTS (VALORANT)", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Gersson Eronir Alves Caracas Júnior", "individuais": "CORRIDA DE VELOCIDADE, TENIS DE MESA", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, HANDEBOL, FUT7", "culturais": "EMBAIXADINHA"}, {"nome": "Thomé da Silva Solon", "individuais": "DOMINÓ, XADREZ", "coletivas": "BASQUETE 3x3", "culturais": ""}, {"nome": "MARCOS VINICIUS NASCIMENTO SOUZA", "individuais": "CORRIDA DE VELOCIDADE, SINUCA/BILHAR, DOMINÓ, BARALHO, POKER, NATAÇÃO, E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, VOLEI DE PRAIA, QUEIMADA, FUTSAL, FUT7, ROUBA BANDEIRA, E-SPORTS (VALORANT)", "culturais": "MARATONA DE PROGRAMAÇÃO, EMBAIXADINHA"}, {"nome": "Luiz Henrique Rodrigues Cesar Oliveira", "individuais": "E-SPORTS (TEKKEN)", "coletivas": "VÔLEI, VOLEI DE PRAIA", "culturais": ""}, {"nome": "Yan Bezerra Alves Mota", "individuais": "BARALHO", "coletivas": "VÔLEI", "culturais": ""}, {"nome": "Luiz Vitor de Freitas chaves", "individuais": "XADREZ, POKER, E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, QUEIMADA, FUTSAL, BASQUETE 3x3, FUT7", "culturais": ""}, {"nome": "Gustavo Soares de Sousa", "individuais": "JIU-JITSU", "coletivas": "FUTSAL", "culturais": "MARATONA DE PROGRAMAÇÃO"}, {"nome": "Matheus Gabriel Rodrigues Barreto", "individuais": "CORRIDA DE VELOCIDADE", "coletivas": "VÔLEI", "culturais": "EMBAIXADINHA"}, {"nome": "Diego Cordeiro Pedrosa", "individuais": "", "coletivas": "E-SPORTS (VALORANT)", "culturais": ""}, {"nome": "Guilherme Alves dos Santos", "individuais": "E-SPORTS (FIFA / EFOOTBALL)", "coletivas": "VÔLEI, VOLEI DE PRAIA, FUTSAL, FUT7, E-SPORTS (VALORANT)", "culturais": "EMBAIXADINHA"}, {"nome": "João Augusto Pereira França", "individuais": "CORRIDA DE VELOCIDADE, POKER, TENIS DE MESA", "coletivas": "", "culturais": "MARATONA DE PROGRAMAÇÃO, MÚSICA"}];
+const categorias = [
+ {key:'individuais', label:'Individuais e duplas', field:'individuais'},
+ {key:'coletivas', label:'Coletivas', field:'coletivas'},
+ {key:'culturais', label:'Culturais', field:'culturais'}
+];
+const normalizar = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
+function obterModalidades() {
+ const mapa = new Map();
+ for (const cat of categorias) {
+  for (const r of registros) {
+   const nome = (r.nome||'').trim();
+   if (!nome) continue;
+   const escolhas = (r[cat.field]||'').split(',').map(x=>x.trim()).filter(Boolean);
+   for (const modalidade of escolhas) {
+    const chave = normalizar(modalidade);
+    if (!mapa.has(cat.key+'|'+chave)) mapa.set(cat.key+'|'+chave, {nome:modalidade.trim(), categoria:cat.key, pessoas:new Map()});
+    mapa.get(cat.key+'|'+chave).pessoas.set(normalizar(nome),nome);
+   }
+  }
+ }
+ return [...mapa.values()].map(m=>({...m,pessoas:[...m.pessoas.values()].sort((a,b)=>a.localeCompare(b,'pt-BR'))}))
+ .sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+}
+const modalidades = obterModalidades();
+document.getElementById('totalPessoas').textContent = registros.filter(r=>(r.nome||'').trim()).length;
+document.getElementById('totalModalidades').textContent = modalidades.length;
+document.getElementById('totalSelecoes').textContent = modalidades.reduce((s,m)=>s+m.pessoas.length,0);
+let categoriaAtual='todas', busca='', expandido=true;
+const cards=document.getElementById('cards');
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function iniciais(nome) {return nome.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toLocaleUpperCase('pt-BR');}
+function render() {
+ const filtradas=modalidades.filter(m=> {
+  const catOk=categoriaAtual==='todas'||m.categoria===categoriaAtual;
+  const q=normalizar(busca);
+  const buscaOk=!q||normalizar(m.nome).includes(q)||m.pessoas.some(n=>normalizar(n).includes(q));
+  return catOk&&buscaOk;
+ });
+ const nomesCategoria={todas:'Todas as modalidades',individuais:'Modalidades individuais e duplas',coletivas:'Modalidades coletivas',culturais:'Modalidades culturais'};
+ document.getElementById('sectionTitle').textContent=nomesCategoria[categoriaAtual];
+ document.getElementById('sectionDesc').textContent=busca?'Resultados filtrados pela busca.':'Cada pessoa é contabilizada uma vez por modalidade.';
+ document.getElementById('shownCount').textContent=filtradas.length+' modalidade(s)';
+ cards.innerHTML=filtradas.map(m=>{
+  const cat=categorias.find(c=>c.key===m.categoria);
+  const filteredPeople=m.pessoas.filter(n=>!normalizar(busca)||normalizar(n).includes(normalizar(busca))||normalizar(m.nome).includes(normalizar(busca)));
+  return `<article class="modality-card">
+   <div class="card-top"><div><div class="card-title">${escapeHTML(m.nome)}</div><div class="section-desc">${escapeHTML(cat.label)}</div></div><span class="count">${m.pessoas.length} inscrito${m.pessoas.length===1?'':'s'}</span></div>
+   <div class="people" style="display:${expandido?'flex':'none'}">${filteredPeople.map(n=>`<div class="person"><span class="avatar">${escapeHTML(iniciais(n))}</span><span>${escapeHTML(n)}</span></div>`).join('')}</div>
+  </article>`;
+ }).join('');
+ document.getElementById('noResults').style.display=filtradas.length?'none':'block';
+}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+ categoriaAtual=btn.dataset.category;render();
+}));
+document.getElementById('search').addEventListener('input',e=>{busca=e.target.value;render();});
+document.getElementById('expandAll').addEventListener('click',()=>{expandido=!expandido;document.getElementById('expandAll').textContent=expandido?'Recolher listas':'Expandir listas';render();});
+document.getElementById('print').addEventListener('click',()=>window.print());
+render();
+</script>
+</body>
+</html>
